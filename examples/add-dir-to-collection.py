@@ -44,3 +44,6 @@ print(json.dumps(collection_list_content(collection["uuid"], "/subdir-1"), inden
 print(json.dumps(collection_list_content(collection["uuid"], "/subdir-2"), indent=4))
 print(json.dumps(collection_list_content(collection["uuid"], "/subdir-3"), indent=4))
 
+# you can even list contents recursively!!
+print(json.dumps(collection_list_content(collection["uuid"], "/", recursive=True), indent=4))
+

@@ -114,18 +114,30 @@ def collection_list():
     return response.json()
 
 
-def collection_fs_list(collection_uuid, collection_path):
+def collection_fs_list(collection_uuid, collection_path, recursive=False):
     query_params = f'col={collection_uuid}&dir={collection_path}'
 
     response = requests.get(ESTUARY_URL+f'collections/fs/list?{query_params}',
         headers={'Authorization': 'Bearer '+ESTUARY_KEY},
     )
-    return response.json()
+
+    if not recursive:
+        return response.json()
+
+    responses = []
+    for entry in response.json():
+        responses.append(entry)
+        if entry["type"] == "directory":
+            responses[-1]["contents"] = collection_fs_list(collection_uuid, collection_path+"/"+entry["name"])
+
+    return responses
 
 
-def collection_list_content(collection_uuid, collection_path=''):
-    if collection_path:
-        return collection_fs_list(collection_uuid, collection_path)
+def collection_list_content(collection_uuid, collection_path='', recursive=False):
+    if recursive or collection_path:
+        if not collection_path:
+            collection_path = '/'
+        return collection_fs_list(collection_uuid, collection_path, recursive)
 
     response = requests.get(ESTUARY_URL+f'collections/content/{collection_uuid}',
         headers={'Authorization': 'Bearer '+ESTUARY_KEY},
@@ -145,15 +157,17 @@ def list_content():
 
 
 def main():
-    responses, collection = add_content('/tmp/dir', create_collection=True)
+    # responses, collection = add_content('/tmp/dir', create_collection=True)
     # print(json.dumps(list_content(), indent=4))
     # print(collection["uuid"])
-    print(json.dumps(collection_list_content(collection['uuid']), indent=4))
-    print(json.dumps(collection_list_content(collection["uuid"], "/otherdir"), indent=4))
+    # print(json.dumps(collection_list_content(collection['uuid']), indent=4))
+    # print(json.dumps(collection_list_content(collection["uuid"], "/otherdir"), indent=4))
+    collection_uuid = collection_list()[-1]['uuid']
+
+    print(json.dumps(collection_fs_list(collection_uuid, "/", recursive=True), indent=4))
 
     # print(shuttle_create())
     # print(autoretrieve_create())
-    # print(json.dumps(collection_list(), indent=4))
     # print(json.dumps(add_content('/tmp/file1'), indent=4))
 
 
