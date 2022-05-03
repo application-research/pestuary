@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import json
 import requests
 
@@ -21,7 +22,15 @@ def autoretrieve_create(private_key, addresses):
     response = requests.post(
         ESTUARY_URL+'admin/autoretrieve/init',
         headers={'Authorization': 'Bearer '+ESTUARY_KEY},
-        json={'privateKey': key, 'addresses': addresses},
+        json={'privateKey': private_key, 'addresses': addresses},
+    )
+    return response.json()
+
+
+def autoretrieve_list():
+    response = requests.get(
+        ESTUARY_URL+'admin/autoretrieve/list',
+        headers={'Authorization': 'Bearer '+ESTUARY_KEY},
     )
     return response.json()
 
@@ -73,7 +82,7 @@ def _add_dir(path, collection_uuid='', root_collection_path=''):
     return responses
 
 
-def add_content(path, create_collection=False):
+def content_add(path, create_collection=False):
     if os.path.isfile(path):
         return _add_file(path)
 
@@ -145,31 +154,46 @@ def collection_list_content(collection_uuid, collection_path='', recursive=False
     return response.json()
 
 
+def collection_commit(collection_uuid):
+    response = requests.post(ESTUARY_URL+f'collections/{collection_uuid}/commit',
+        headers={'Authorization': 'Bearer '+ESTUARY_KEY},
+    )
+    return response.json()
 
-def list_content():
+
+# lists all contents for this user
+def content_list():
     response = requests.get(ESTUARY_URL+f'content/stats',
         headers={'Authorization': 'Bearer '+ESTUARY_KEY},
     )
 
-    # sort in descending id
-    return sorted(response.json(), key=lambda k: k['id'])
-    # return response.json()
+    # response CID comes like "cid": {"/": "cid_here"}, change to "cid": "cid_here"
+    pretty_response = []
+    for content in response.json():
+        content["cid"] = content["cid"]["/"]
+        pretty_response.append(content)
+
+    # sort in descending id order (newer ids appear last)
+    return sorted(pretty_response, key=lambda k: k['id'])
+
+
+# creates a new pin
+def pin_create(cid, name, meta):
+    response = requests.post(ESTUARY_URL+'pinning/pins',
+                  headers={'Authorization': 'Bearer '+ESTUARY_KEY},
+                     json={"cid": cid, "name": name, "meta": meta})
+    return response.json()
+
+
+# list all pins for this user
+def pin_list():
+    response = requests.get(ESTUARY_URL+'pinning/pins',
+                  headers={'Authorization': 'Bearer '+ESTUARY_KEY})
+    return response.json()
 
 
 def main():
-    # responses, collection = add_content('/tmp/dir', create_collection=True)
-    # print(json.dumps(list_content(), indent=4))
-    # print(collection["uuid"])
-    # print(json.dumps(collection_list_content(collection['uuid']), indent=4))
-    # print(json.dumps(collection_list_content(collection["uuid"], "/otherdir"), indent=4))
-    collection_uuid = collection_list()[-1]['uuid']
-
-    print(json.dumps(collection_fs_list(collection_uuid, "/", recursive=True), indent=4))
-
-    # print(shuttle_create())
-    # print(autoretrieve_create())
-    # print(json.dumps(add_content('/tmp/file1'), indent=4))
-
+    pass
 
 if __name__ == '__main__':
     main()
