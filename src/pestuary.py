@@ -67,11 +67,11 @@ def _add_file(path, collection_uuid='', root_collection_path=''):
 
 
 def _add_dir(path, collection_uuid='', root_collection_path=''):
+    responses = []
     if len(os.listdir(path)) == 0:
         print(f"empty directory '{path}'")
-        return
+        return responses
 
-    responses = []
     for entry in os.listdir(path):
         fullpath = os.path.join(path, entry)
         if os.path.isfile(fullpath):
