@@ -18,11 +18,11 @@ def shuttle_create():
     return response.json()
 
 
-def autoretrieve_create(private_key, addresses):
+def autoretrieve_create(pub_key, addresses):
     response = requests.post(
         ESTUARY_URL+'admin/autoretrieve/init',
         headers={'Authorization': 'Bearer '+ESTUARY_KEY},
-        json={'privateKey': private_key, 'addresses': addresses},
+        data={'pubKey': pub_key, 'addresses': addresses},
     )
     return response.json()
 
