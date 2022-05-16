@@ -52,7 +52,7 @@ def _add_file(path, collection_uuid='', root_collection_path=''):
             return
         collection_path = '/' + os.path.relpath(path, start=root_collection_path)
 
-    file = open(path, "r")
+    file = open(path, "rb")
     filename = os.path.basename(os.path.normpath(path))
 
     response = requests.post(ESTUARY_URL+'content/add',
