@@ -3,15 +3,52 @@ import sys
 import time
 import json
 import requests
+import swagger_client
+from swagger_client.rest import ApiException
+from pprint import pprint
 
-ESTUARY_URL='http://localhost:3004/'
+
+ESTUARY_URL='http://localhost:3004'
+#ESTUARY_URL='https://api.estuary.tech'
 ESTUARY_KEY=os.getenv('APIKEY')
 SHUTTLES = {}
 if not ESTUARY_KEY:
     print("$APIKEY environment variable not set")
     sys.exit(1)
 
+configuration = swagger_client.Configuration()
+configuration.api_key['Authorization'] = ESTUARY_KEY
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+configuration.api_key_prefix['Authorization'] = 'Bearer'
+configuration.host = ESTUARY_URL
 
+# create an instance of the API class
+userApi = swagger_client.UserApi(swagger_client.ApiClient(configuration))
+adminApi = swagger_client.AdminApi(swagger_client.ApiClient(configuration))
+autoretrieveApi = swagger_client.AutoretrieveApi(swagger_client.ApiClient(configuration))
+collectionsApi = swagger_client.CollectionsApi(swagger_client.ApiClient(configuration))
+contentApi = swagger_client.ContentApi(swagger_client.ApiClient(configuration))
+dealsApi = swagger_client.DealsApi(swagger_client.ApiClient(configuration))
+metricsApi = swagger_client.MetricsApi(swagger_client.ApiClient(configuration))
+minerApi = swagger_client.MinerApi(swagger_client.ApiClient(configuration))
+netApi = swagger_client.NetApi(swagger_client.ApiClient(configuration))
+peeringApi = swagger_client.PeeringApi(swagger_client.ApiClient(configuration))
+peersApi = swagger_client.PeersApi(swagger_client.ApiClient(configuration))
+pinningApi = swagger_client.PinningApi(swagger_client.ApiClient(configuration))
+publicApi = swagger_client.PublicApi(swagger_client.ApiClient(configuration))
+
+
+
+
+try:
+    # Get API keys for a user
+    api_response = userApi.user_api_keys_get()
+except ApiException as e:
+    print("Exception when calling UserApi->user_api_keys_get: %s\n" % e)
+
+
+
+#is this deprecated? I don't see it in the docs
 def shuttle_create():
     response = requests.post(ESTUARY_URL+'admin/shuttle/init',
                   headers={'Authorization': 'Bearer '+ESTUARY_KEY})
@@ -19,27 +56,14 @@ def shuttle_create():
 
 
 def autoretrieve_create(pub_key, addresses):
-    response = requests.post(
-        ESTUARY_URL+'admin/autoretrieve/init',
-        headers={'Authorization': 'Bearer '+ESTUARY_KEY},
-        data={'pubKey': pub_key, 'addresses': addresses},
-    )
-    return response.json()
-
+    return autoretrieveApi.admin_autoretrieve_init_post(addresses, pub_key)
 
 def autoretrieve_list():
-    response = requests.get(
-        ESTUARY_URL+'admin/autoretrieve/list',
-        headers={'Authorization': 'Bearer '+ESTUARY_KEY},
-    )
-    return response.json()
+    return autoretrieveApi.admin_autoretrieve_list_get()
 
 
-def autoretrieve_heartbeat(secret):
-    response = requests.post(ESTUARY_URL+'autoretrieve/heartbeat',
-                  headers={'Authorization': 'Bearer '+secret})
-    return response.json()
-
+def autoretrieve_heartbeat(token):
+    return autoretrieveApi.autoretrieve_heartbeat_post(token)
 
 def _add_file(path, collection_uuid='', root_collection_path=''):
 
@@ -51,19 +75,7 @@ def _add_file(path, collection_uuid='', root_collection_path=''):
             print(f"empty root collection path")
             return
         collection_path = '/' + os.path.relpath(path, start=root_collection_path)
-
-    file = open(path, "rb")
-    filename = os.path.basename(os.path.normpath(path))
-
-    response = requests.post(ESTUARY_URL+'content/add',
-        headers={'Authorization': 'Bearer '+ESTUARY_KEY},
-        files={"data": file},
-        data={"name": filename, "collection": collection_uuid, \
-            "collectionPath": collection_path},
-    )
-
-    file.close()
-    return response.json()
+    return contentApi.content_add_post(path, coluuid=collection_uuid, dir=collection_path)
 
 
 def _add_dir(path, collection_uuid='', root_collection_path=''):
@@ -93,36 +105,26 @@ def content_add(path, create_collection=False):
         # /tmp/foo/bar/cool-pictures/ -> collection_name: cool-pictures
         collection_name = os.path.basename(os.path.normpath(path))
         collection = collection_create(collection_name)
-        print(collection)
-        if 'error' in collection:
-            return collection
-        collection_uuid = collection['uuid']
-        # TODO: check if collection was properly created
+        collection_uuid = collection.uuid
 
     responses = _add_dir(path, collection_uuid=collection_uuid, \
                     root_collection_path=path)
 
-    if collection and "error" not in collection:
-        return responses, collection
-
-    return responses
+    return responses, collection
 
 
 def collection_create(name, description=''):
-    response = requests.post(ESTUARY_URL+'collections/create',
-        headers={'Authorization': 'Bearer '+ESTUARY_KEY},
-        json={'name': name, 'description': description},
-    )
-    return response.json()
+    body = swagger_client.MainCreateCollectionBody(name=name, description=description)
+    return collectionsApi.collections_post(body)
 
 
-def collection_list():
-    response = requests.get(ESTUARY_URL+'collections/list',
-        headers={'Authorization': 'Bearer '+ESTUARY_KEY},
-    )
-    return response.json()
+def collection_list(id):
+    return collectionsApi.collections_get(id)
 
 
+
+#TODO I don't really understand this method 
+# I think we want to use this https://github.com/snissn/estuary-swagger-clients/blob/main/python/docs/CollectionsApi.md#collections_coluuid_get
 def collection_fs_list(collection_uuid, collection_path, recursive=False):
     query_params = f'col={collection_uuid}&dir={collection_path}'
 
@@ -142,54 +144,28 @@ def collection_fs_list(collection_uuid, collection_path, recursive=False):
     return responses
 
 
+#todo what is recursive and how should it be used?
 def collection_list_content(collection_uuid, collection_path='', recursive=False):
-    if recursive or collection_path:
-        if not collection_path:
-            collection_path = '/'
-        return collection_fs_list(collection_uuid, collection_path, recursive)
-
-    response = requests.get(ESTUARY_URL+f'collections/content/{collection_uuid}',
-        headers={'Authorization': 'Bearer '+ESTUARY_KEY},
-    )
-    return response.json()
+    return collectionsApi.collections_coluuid_get(collection_uuid, dir=collection_path)
 
 
 def collection_commit(collection_uuid):
-    response = requests.post(ESTUARY_URL+f'collections/{collection_uuid}/commit',
-        headers={'Authorization': 'Bearer '+ESTUARY_KEY},
-    )
-    return response.json()
+    return collectionsApi.collections_coluuid_commit_post(collection_uuid)
 
 
 # lists all contents for this user
 def content_list():
-    response = requests.get(ESTUARY_URL+f'content/stats',
-        headers={'Authorization': 'Bearer '+ESTUARY_KEY},
-    )
-
-    # response CID comes like "cid": {"/": "cid_here"}, change to "cid": "cid_here"
-    pretty_response = []
-    for content in response.json():
-        content["cid"] = content["cid"]["/"]
-        pretty_response.append(content)
-
-    # sort in descending id order (newer ids appear last)
-    return sorted(pretty_response, key=lambda k: k['id'])
-
+    limit = '0' # seems to be ignored #TODO what is limit
+    return collectionsApi.content_stats_get(limit)
+    #TODO old version sorted by id, do we need that?
 
 # creates a new pin
-def pin_create(cid, name, meta):
-    response = requests.post(ESTUARY_URL+'pinning/pins',
-                  headers={'Authorization': 'Bearer '+ESTUARY_KEY},
-                     json={"cid": cid, "name": name, "meta": meta})
-    return response.json()
-
+def pin_create(cid, name):
+    return pinningApi.pinning_pins_post(cid, name)
 
 # list all pins for this user
 def pin_list():
-    response = requests.get(ESTUARY_URL+'pinning/pins',
-                  headers={'Authorization': 'Bearer '+ESTUARY_KEY})
-    return response.json()
+    return pinningApi.pinning_pins_get()
 
 
 def main():
