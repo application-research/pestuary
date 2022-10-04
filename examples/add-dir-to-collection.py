@@ -39,8 +39,7 @@ responses = content_add('/tmp/test-adddir')
 # you can also create a dir-like structure
 # on estuary using collections
 responses, collection = content_add('/tmp/test-adddir', create_collection=True)
-if not collection_list_content(collection.uuid):
-    print("No collection listed, currenlyt this is due to a problem with the API endpoint https://github.com/application-research/estuary/issues/447")
+print( collection_list_content(collection.uuid))
 
 # you can even list contents recursively!!
 #not sure what we want recursive vs non recursive to be
