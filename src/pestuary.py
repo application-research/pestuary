@@ -12,8 +12,8 @@ from swagger_client.rest import ApiException
 from pprint import pprint
 
 
-ESTUARY_URL='http://localhost:3004'
-#ESTUARY_URL='https://api.estuary.tech'
+#ESTUARY_URL='http://localhost:3004'
+ESTUARY_URL='https://api.estuary.tech'
 ESTUARY_KEY=os.getenv('APIKEY')
 SHUTTLES = {}
 if not ESTUARY_KEY:
@@ -63,6 +63,8 @@ def process_result(result):
 
 #wrote magic to automate some things that clck doesnt do, i didnt want to have to specify each argument to click for each method when it can be done automatically using decorators
 def magic(fn):
+    if __name__ != "__main__":
+        return fn
     argspec = inspect.getargspec(fn)
     arguments = argspec.args
     defaults = argspec.defaults
@@ -90,13 +92,16 @@ def shuttle_create():
     return response.json()
 
 
+@magic
 def autoretrieve_create(pub_key, addresses):
     return autoretrieveApi.admin_autoretrieve_init_post(addresses, pub_key)
 
+@magic
 def autoretrieve_list():
     return autoretrieveApi.admin_autoretrieve_list_get()
 
 
+@magic
 def autoretrieve_heartbeat(token):
     return autoretrieveApi.autoretrieve_heartbeat_post(token)
 
@@ -130,6 +135,7 @@ def _add_dir(path, collection_uuid='', root_collection_path=''):
 
 
 
+@magic
 def content_add(path, create_collection=False):
     if os.path.isfile(path):
         return _add_file(path)
@@ -157,6 +163,7 @@ def collection_list():
 
 #TODO I don't really understand this method 
 # I think we want to use this https://github.com/snissn/estuary-swagger-clients/blob/main/python/docs/CollectionsApi.md#collections_coluuid_get
+@magic
 def collection_fs_list(collection_uuid, collection_path, recursive=False):
     query_params = f'col={collection_uuid}&dir={collection_path}'
 
@@ -177,29 +184,34 @@ def collection_fs_list(collection_uuid, collection_path, recursive=False):
 
 
 #todo what is recursive and how should it be used?
+@magic
 def collection_list_content(collection_uuid, collection_path='', recursive=False):
     return collectionsApi.collections_coluuid_get(collection_uuid, dir=collection_path)
 
 
+@magic
 def collection_commit(collection_uuid):
     return collectionsApi.collections_coluuid_commit_post(collection_uuid)
 
+@magic
 def content_add_ipfs(ipfs):
     body = swagger_client.UtilContentAddIpfsBody(root=ipfs)
     return contentApi.content_add_ipfs_post(body)
 
 # lists all contents for this user
-@cli.command()
+@magic
 def content_list():
     limit = '0' # seems to be ignored #TODO what is limit
     return collectionsApi.content_stats_get(limit)
     #TODO old version sorted by id, do we need that?
 
 # creates a new pin
+@magic
 def pin_create(cid, name):
     return pinningApi.pinning_pins_post(cid, name)
 
 # list all pins for this user
+@magic
 def pin_list():
     return pinningApi.pinning_pins_get()
 
