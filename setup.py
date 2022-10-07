@@ -9,11 +9,10 @@ setup(
                 'Click',
                 "swagger_client @ git+https://github.com/snissn/estuary-swagger-clients.git#subdirectory=python",
                 "requests",
-                "jsonpickle"
             ],
         entry_points='''
             [console_scripts]
-            pestuary=pestuary:cli
+            pestuary=pestuary_cli:main
         '''
 )
         

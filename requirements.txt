@@ -1,2 +1,3 @@
 git+https://github.com/snissn/estuary-swagger-clients.git#subdirectory=python
 requests
+click
