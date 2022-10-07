@@ -1,3 +1,7 @@
+import inspect
+from functools import wraps
+import click
+import jsonpickle
 import os
 import sys
 import time
@@ -46,9 +50,40 @@ try:
 except ApiException as e:
     print("Exception when calling UserApi->user_api_keys_get: %s\n" % e)
 
+@click.group()
+def cli():
+    pass
+
+@cli.result_callback()
+def process_result(result):
+    print(json.dumps(result, default=lambda x: x.to_dict()))
+    return result
+
+
+
+#wrote magic to automate some things that clck doesnt do, i didnt want to have to specify each argument to click for each method when it can be done automatically using decorators
+def magic(fn):
+    argspec = inspect.getargspec(fn)
+    arguments = argspec.args
+    defaults = argspec.defaults
+    if not arguments:
+        arguments = []
+    if not defaults:
+        defaults = []
+    requireds = [index < len(arguments) - len(defaults)  for index in range(len(arguments)) ]
+    for i in range( len(arguments) - 1, -1, -1) :
+        fn = click.argument(arguments[i], required=requireds[i])(fn)
+    fn = cli.command()(fn)
+    return fn
+
+@magic
+def collection_create(name, description=''):
+    body = swagger_client.MainCreateCollectionBody(name=name, description=description)
+    return collectionsApi.collections_post(body)
 
 
 #is this deprecated? I don't see it in the docs
+@magic
 def shuttle_create():
     response = requests.post(ESTUARY_URL+'admin/shuttle/init',
                   headers={'Authorization': 'Bearer '+ESTUARY_KEY})
@@ -94,6 +129,7 @@ def _add_dir(path, collection_uuid='', root_collection_path=''):
     return responses
 
 
+
 def content_add(path, create_collection=False):
     if os.path.isfile(path):
         return _add_file(path)
@@ -106,20 +142,16 @@ def content_add(path, create_collection=False):
         collection_name = os.path.basename(os.path.normpath(path))
         collection = collection_create(collection_name)
         collection_uuid = collection.uuid
+    print("collection_uuid", collection_uuid)
 
     responses = _add_dir(path, collection_uuid=collection_uuid, \
                     root_collection_path=path)
 
     return responses, collection
 
-
-def collection_create(name, description=''):
-    body = swagger_client.MainCreateCollectionBody(name=name, description=description)
-    return collectionsApi.collections_post(body)
-
-
-def collection_list(id):
-    return collectionsApi.collections_get(id)
+@magic
+def collection_list():
+    return collectionsApi.collections_get()
 
 
 
@@ -152,8 +184,12 @@ def collection_list_content(collection_uuid, collection_path='', recursive=False
 def collection_commit(collection_uuid):
     return collectionsApi.collections_coluuid_commit_post(collection_uuid)
 
+def content_add_ipfs(ipfs):
+    body = swagger_client.UtilContentAddIpfsBody(root=ipfs)
+    return contentApi.content_add_ipfs_post(body)
 
 # lists all contents for this user
+@cli.command()
 def content_list():
     limit = '0' # seems to be ignored #TODO what is limit
     return collectionsApi.content_stats_get(limit)
