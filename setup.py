@@ -1,9 +1,8 @@
 from setuptools import setup
 
 setup(
-        name="Pestuary",
+        name="pestuary",
         version="1.0",
-        py_modules="pestuary",
         package_dir={'':'src'},
         install_requires=[
                 'Click',
