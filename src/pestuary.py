@@ -5,8 +5,8 @@ import sys
 import time
 import json
 import requests
-import swagger_client
-from swagger_client.rest import ApiException
+import estuary_client
+from estuary_client.rest import ApiException
 from pprint import pprint
 
 #ESTUARY_URL='http://localhost:3004'
@@ -17,26 +17,26 @@ if not ESTUARY_KEY:
     print("$APIKEY environment variable not set")
     sys.exit(1)
 
-configuration = swagger_client.Configuration()
+configuration = estuary_client.Configuration()
 configuration.api_key['Authorization'] = ESTUARY_KEY
 # Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
 configuration.api_key_prefix['Authorization'] = 'Bearer'
 configuration.host = ESTUARY_URL
 
 # create an instance of the API class
-userApi = swagger_client.UserApi(swagger_client.ApiClient(configuration))
-adminApi = swagger_client.AdminApi(swagger_client.ApiClient(configuration))
-autoretrieveApi = swagger_client.AutoretrieveApi(swagger_client.ApiClient(configuration))
-collectionsApi = swagger_client.CollectionsApi(swagger_client.ApiClient(configuration))
-contentApi = swagger_client.ContentApi(swagger_client.ApiClient(configuration))
-dealsApi = swagger_client.DealsApi(swagger_client.ApiClient(configuration))
-metricsApi = swagger_client.MetricsApi(swagger_client.ApiClient(configuration))
-minerApi = swagger_client.MinerApi(swagger_client.ApiClient(configuration))
-netApi = swagger_client.NetApi(swagger_client.ApiClient(configuration))
-peeringApi = swagger_client.PeeringApi(swagger_client.ApiClient(configuration))
-peersApi = swagger_client.PeersApi(swagger_client.ApiClient(configuration))
-pinningApi = swagger_client.PinningApi(swagger_client.ApiClient(configuration))
-publicApi = swagger_client.PublicApi(swagger_client.ApiClient(configuration))
+userApi = estuary_client.UserApi(estuary_client.ApiClient(configuration))
+adminApi = estuary_client.AdminApi(estuary_client.ApiClient(configuration))
+autoretrieveApi = estuary_client.AutoretrieveApi(estuary_client.ApiClient(configuration))
+collectionsApi = estuary_client.CollectionsApi(estuary_client.ApiClient(configuration))
+contentApi = estuary_client.ContentApi(estuary_client.ApiClient(configuration))
+dealsApi = estuary_client.DealsApi(estuary_client.ApiClient(configuration))
+metricsApi = estuary_client.MetricsApi(estuary_client.ApiClient(configuration))
+minerApi = estuary_client.MinerApi(estuary_client.ApiClient(configuration))
+netApi = estuary_client.NetApi(estuary_client.ApiClient(configuration))
+peeringApi = estuary_client.PeeringApi(estuary_client.ApiClient(configuration))
+peersApi = estuary_client.PeersApi(estuary_client.ApiClient(configuration))
+pinningApi = estuary_client.PinningApi(estuary_client.ApiClient(configuration))
+publicApi = estuary_client.PublicApi(estuary_client.ApiClient(configuration))
 
 
 
@@ -52,7 +52,7 @@ except ApiException as e:
 
 
 def collection_create(name, description=''):
-    body = swagger_client.MainCreateCollectionBody(name=name, description=description)
+    body = estuary_client.MainCreateCollectionBody(name=name, description=description)
     return collectionsApi.collections_post(body)
 
 
@@ -83,6 +83,7 @@ def _add_file(path, collection_uuid='', root_collection_path=''):
             print(f"empty root collection path")
             return
         collection_path = '/' + os.path.relpath(path, start=root_collection_path)
+    print("Calling api", path, collection_uuid)
     return contentApi.content_add_post(path, coluuid=collection_uuid, dir=collection_path)
 
 
@@ -104,6 +105,7 @@ def _add_dir(path, collection_uuid='', root_collection_path=''):
 
 
 def content_add(path, create_collection=False):
+    print("path", path)
     if os.path.isfile(path):
         return _add_file(path)
 
@@ -157,7 +159,7 @@ def collection_commit(collection_uuid):
     return collectionsApi.collections_coluuid_commit_post(collection_uuid)
 
 def content_add_ipfs(ipfs):
-    body = swagger_client.UtilContentAddIpfsBody(root=ipfs)
+    body = estuary_client.UtilContentAddIpfsBody(root=ipfs)
     return contentApi.content_add_ipfs_post(body)
 
 # lists all contents for this user
@@ -176,7 +178,7 @@ def pin_list():
 
 
 def main():
-    pass
+    cli()
 
 if __name__ == '__main__':
     main()
