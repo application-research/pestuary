@@ -26,7 +26,7 @@ os.mkdir('/tmp/test-adddir/subdir-3')
 dirlist = ['/tmp/test-adddir' ,'/tmp/test-adddir/subdir-1', \
            '/tmp/test-adddir/subdir-2', '/tmp/test-adddir/subdir-3']
 for directory in dirlist:
-    for i in range(1):
+    for i in range(3):
         f = open(directory+f"/file{i}.txt", "w")
         random_content = ''.join(random.choice(string.printable) for _ in range(10))
         f.write(random_content)
