@@ -5,9 +5,9 @@ setup(
         version="1.0.4",
         package_dir={'':'src'},
         install_requires=[
-                'Click',
                 "estuary_client",
                 "requests",
+                "instantcli"
             ],
         entry_points='''
             [console_scripts]
