@@ -3,7 +3,8 @@ import random
 import shutil
 import json
 import string
-from pestuary import add_content, collection_list_content
+import pestuary
+from pestuary import content_add, collection_list_content
 
 # delete entries from previous tests
 try:
@@ -33,17 +34,14 @@ for directory in dirlist:
 
 
 # add all the files under /tmp/test-adddir
-responses = add_content('/tmp/test-adddir')
-# print(responses)
+#responses = content_add('/tmp/test-adddir')
 
 # you can also create a dir-like structure
 # on estuary using collections
-responses, collection = add_content('/tmp/test-adddir', create_collection=True)
-# print(responses, collection)
-print(json.dumps(collection_list_content(collection["uuid"], "/subdir-1"), indent=4))
-print(json.dumps(collection_list_content(collection["uuid"], "/subdir-2"), indent=4))
-print(json.dumps(collection_list_content(collection["uuid"], "/subdir-3"), indent=4))
+responses, collection = content_add('/tmp/test-adddir', create_collection=True)
+print( collection_list_content(collection.uuid))
 
 # you can even list contents recursively!!
-print(json.dumps(collection_list_content(collection["uuid"], "/", recursive=True), indent=4))
+#not sure what we want recursive vs non recursive to be
+#print(json.dumps(collection_list_content(collection["uuid"], "/", recursive=True), indent=4))
 
