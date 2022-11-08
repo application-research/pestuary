@@ -1,4 +1,5 @@
 import inspect
+import tempfile
 import click
 import os
 import sys
@@ -72,6 +73,14 @@ def autoretrieve_list():
 
 def autoretrieve_heartbeat(token):
     return autoretrieveApi.autoretrieve_heartbeat_post(token)
+
+def add_string(buffer, filename, coluuid='', dir=''):
+    with tempfile.TemporaryDirectory() as tempdir:
+        with open(os.path.join(tempdir, filename),'w') as fp:
+            fp.write(buffer)
+            fp.flush()
+            fp.seek(0)
+            return contentApi.content_add_post(fp.name, coluuid=coluuid, dir=dir)
 
 def _add_file(path, collection_uuid='', root_collection_path=''):
 
