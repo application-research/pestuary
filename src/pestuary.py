@@ -1,18 +1,20 @@
-import inspect
 import tempfile
-import click
 import os
 import sys
-import time
-import json
 import requests
 import estuary_client
 from estuary_client.rest import ApiException
-from pprint import pprint
+import os
+import sys
+import tempfile
 
-#ESTUARY_URL='http://localhost:3004'
-ESTUARY_URL='https://api.estuary.tech'
-ESTUARY_KEY=os.getenv('APIKEY')
+import estuary_client
+import requests
+from estuary_client.rest import ApiException
+
+# ESTUARY_URL='http://localhost:3004'
+ESTUARY_URL = 'https://api.estuary.tech'
+ESTUARY_KEY = os.getenv('APIKEY')
 SHUTTLES = {}
 if not ESTUARY_KEY:
     print("$APIKEY environment variable not set")
@@ -39,9 +41,6 @@ peersApi = estuary_client.PeersApi(estuary_client.ApiClient(configuration))
 pinningApi = estuary_client.PinningApi(estuary_client.ApiClient(configuration))
 publicApi = estuary_client.PublicApi(estuary_client.ApiClient(configuration))
 
-
-
-
 try:
     # Get API keys for a user
     api_response = userApi.user_api_keys_get()
@@ -49,7 +48,8 @@ except ApiException as e:
     print("Exception when calling UserApi->user_api_keys_get: %s\n" % e)
 
 
-
+def add_content_to_collection(coluuid, content_ids):
+    return collectionsApi.collections_coluuid_post(coluuid, content_ids)
 
 
 def collection_create(name, description=''):
@@ -57,15 +57,16 @@ def collection_create(name, description=''):
     return collectionsApi.collections_post(body)
 
 
-#is this deprecated? I don't see it in the docs
+# is this deprecated? I don't see it in the docs
 def shuttle_create():
-    response = requests.post(ESTUARY_URL+'admin/shuttle/init',
-                  headers={'Authorization': 'Bearer '+ESTUARY_KEY})
+    response = requests.post(ESTUARY_URL + 'admin/shuttle/init',
+                             headers={'Authorization': 'Bearer ' + ESTUARY_KEY})
     return response.json()
 
 
 def autoretrieve_create(pub_key, addresses):
     return autoretrieveApi.admin_autoretrieve_init_post(addresses, pub_key)
+
 
 def autoretrieve_list():
     return autoretrieveApi.admin_autoretrieve_list_get()
@@ -74,16 +75,17 @@ def autoretrieve_list():
 def autoretrieve_heartbeat(token):
     return autoretrieveApi.autoretrieve_heartbeat_post(token)
 
+
 def add_string(buffer, filename, coluuid='', dir=''):
     with tempfile.TemporaryDirectory() as tempdir:
-        with open(os.path.join(tempdir, filename),'w') as fp:
+        with open(os.path.join(tempdir, filename), 'w') as fp:
             fp.write(buffer)
             fp.flush()
             fp.seek(0)
             return contentApi.content_add_post(fp.name, coluuid=coluuid, dir=dir)
 
-def _add_file(path, collection_uuid='', root_collection_path=''):
 
+def _add_file(path, collection_uuid='', root_collection_path=''):
     # get only relevant parts of path for directory inside collection and filename
     # /tmp/mydir/subdir/current-file -> [collection_path: /subdir/, filename: current-file]
     collection_path = ''
@@ -112,7 +114,6 @@ def _add_dir(path, collection_uuid='', root_collection_path=''):
     return responses
 
 
-
 def content_add(path, create_collection=False):
     print("path", path)
     if os.path.isfile(path):
@@ -129,23 +130,23 @@ def content_add(path, create_collection=False):
     print("collection_uuid", collection_uuid)
 
     responses = _add_dir(path, collection_uuid=collection_uuid, \
-                    root_collection_path=path)
+                         root_collection_path=path)
 
     return responses, collection
+
 
 def collection_list():
     return collectionsApi.collections_get()
 
 
-
-#TODO I don't really understand this method 
+# TODO I don't really understand this method
 # I think we want to use this https://github.com/snissn/estuary-swagger-clients/blob/main/python/docs/CollectionsApi.md#collections_coluuid_get
 def collection_fs_list(collection_uuid, collection_path, recursive=False):
     query_params = f'col={collection_uuid}&dir={collection_path}'
 
-    response = requests.get(ESTUARY_URL+f'collections/fs/list?{query_params}',
-        headers={'Authorization': 'Bearer '+ESTUARY_KEY},
-    )
+    response = requests.get(ESTUARY_URL + f'collections/fs/list?{query_params}',
+                            headers={'Authorization': 'Bearer ' + ESTUARY_KEY},
+                            )
 
     if not recursive:
         return response.json()
@@ -154,12 +155,12 @@ def collection_fs_list(collection_uuid, collection_path, recursive=False):
     for entry in response.json():
         responses.append(entry)
         if entry["type"] == "directory":
-            responses[-1]["contents"] = collection_fs_list(collection_uuid, collection_path+"/"+entry["name"])
+            responses[-1]["contents"] = collection_fs_list(collection_uuid, collection_path + "/" + entry["name"])
 
     return responses
 
 
-#todo what is recursive and how should it be used?
+# todo what is recursive and how should it be used?
 def collection_list_content(collection_uuid, collection_path='', recursive=False):
     return collectionsApi.collections_coluuid_get(collection_uuid, dir=collection_path)
 
@@ -167,19 +168,23 @@ def collection_list_content(collection_uuid, collection_path='', recursive=False
 def collection_commit(collection_uuid):
     return collectionsApi.collections_coluuid_commit_post(collection_uuid)
 
+
 def content_add_ipfs(ipfs):
     body = estuary_client.UtilContentAddIpfsBody(root=ipfs)
     return contentApi.content_add_ipfs_post(body)
 
+
 # lists all contents for this user
 def content_list():
-    limit = '0' # seems to be ignored #TODO what is limit
+    limit = '0'  # seems to be ignored #TODO what is limit
     return collectionsApi.content_stats_get(limit)
-    #TODO old version sorted by id, do we need that?
+    # TODO old version sorted by id, do we need that?
+
 
 # creates a new pin
 def pin_create(cid, name):
     return pinningApi.pinning_pins_post(cid, name)
+
 
 # list all pins for this user
 def pin_list():
@@ -188,6 +193,7 @@ def pin_list():
 
 def main():
     cli()
+
 
 if __name__ == '__main__':
     main()
