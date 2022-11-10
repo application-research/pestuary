@@ -49,6 +49,7 @@ except ApiException as e:
 
 
 def add_content_to_collection(coluuid, content_ids):
+    """Add Content objects to a Collection"""
     return collectionsApi.collections_coluuid_post(coluuid, content_ids)
 
 
