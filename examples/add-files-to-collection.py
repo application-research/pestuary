@@ -1,5 +1,8 @@
-import csv, os
-from pestuary import add_content_to_collection, content_add, collection_create, collection_list_content
+import csv
+import os
+
+from pestuary.collections import add_content_to_collection, collection_create, collection_list_content
+from pestuary.content import content_add
 
 
 def setup_test_data(test_file_name='a.csv'):

@@ -9,5 +9,6 @@ instantcli.post_call = lambda result: print(json.dumps(result, default=lambda x:
 def main():
     instantcli.instantcli(pestuary)
 
+
 if __name__ == "__main__":
     main()
