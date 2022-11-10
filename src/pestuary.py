@@ -183,7 +183,10 @@ def content_list():
 
 # creates a new pin
 def pin_create(cid, name):
-    return pinningApi.pinning_pins_post(cid, name)
+    return pinningApi.pinning_pins_post({
+        "cid": cid,
+        "name": name
+    })
 
 
 # list all pins for this user

@@ -1,3 +1,7 @@
 .idea
 src/__pycache__
 src/pestuary.egg-info
+
+examples/__pycache__
+tests/__pycache__
+
