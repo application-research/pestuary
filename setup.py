@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
         name="pestuary",
-        version="1.0.7",
+        version="1.0.8",
         package_dir={'':'src'},
         install_requires=[
                 "estuary_client",
