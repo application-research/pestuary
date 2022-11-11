@@ -1,4 +1,5 @@
 import os
+import sys
 import estuary_client
 from estuary_client.rest import ApiException
 
