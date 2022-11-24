@@ -1,3 +1,3 @@
-estuary_client
+estuary_client==1.0.4
 requests
-instantcli
+instantcli==1.0.3
