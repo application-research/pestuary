@@ -2,7 +2,7 @@ import os
 
 from pestuary.collections import add_content_to_collection, collection_create, collection_list_content
 from pestuary.content import content_add
-from utils import setup_test_data_file
+from utils import create_tmp_file
 
 
 def cleanup_test_data(test_file_name='a.csv'):
@@ -16,7 +16,7 @@ def add_data(test_file_name='a.csv'):
 
 if __name__ == '__main__':
     file_name = 'a.csv'
-    setup_test_data_file(file_name)
+    create_tmp_file(file_name)
     content_id = add_data(file_name)
 
     response = collection_create("test collection", "test description")

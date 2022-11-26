@@ -2,13 +2,8 @@
 
 from pestuary.collections import collection_create
 
-
-def example_collection_create():
+if __name__ == '__main__':
     name = "Test"
     description = "Helpful description here"
     response = collection_create(name, description)
     print(response)
-
-
-if __name__ == '__main__':
-    example_collection_create()

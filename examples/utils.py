@@ -5,7 +5,7 @@ import shutil
 import string
 
 
-def setup_test_data_directory(dir='test-adddir'):
+def create_tmp_directory(dir='test-adddir'):
     # create directories with files
     # tmp
     # ├── test-adddir
@@ -30,7 +30,7 @@ def setup_test_data_directory(dir='test-adddir'):
             f.close()
 
 
-def setup_test_data_file(test_file_name='a.csv'):
+def create_tmp_file(test_file_name='a.csv'):
     with open(test_file_name, 'w') as f:
         writer = csv.writer(f)
 
@@ -40,7 +40,7 @@ def setup_test_data_file(test_file_name='a.csv'):
         writer.writerow([3, 'c'])
 
 
-def cleanup_test_data_directory(dir='test-addir'):
+def remove_tmp_directory(dir='test-addir'):
     # delete entries from previous tests
     try:
         shutil.rmtree(os.path.join('/tmp', dir))
