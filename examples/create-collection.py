@@ -2,7 +2,8 @@
 
 from pestuary.collections import collection_create
 
-name = "Test"
-description = "Helpful description here"
-response = collection_create(name, description)
-print(response)
+if __name__ == '__main__':
+    name = "Test"
+    description = "Helpful description here"
+    response = collection_create(name, description)
+    print(response)

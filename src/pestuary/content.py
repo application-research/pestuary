@@ -1,9 +1,10 @@
 import os
 import tempfile
 
+from estuary_client import UtilContentAddIpfsBody
+
 from pestuary import contentApi
 from .collections import collection_create
-from estuary_client import UtilContentAddIpfsBody
 
 
 def add_string(buffer, filename, coluuid='', dir=''):
