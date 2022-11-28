@@ -36,14 +36,16 @@ class VersionedUploads:
         self.collections_api = estuary_client.CollectionsApi(api_client)
         self.all_collections = self.collections_api.collections_get()
 
-    def add_with_version(self, data):
+    def add_with_version(self, data, filename=None):
+        if not filename:
+            filename = data
         data_collections = self.get_collections(data)
 
         if not data_collections:
-            data_with_version = versioned_data(data)
-            response = self.create_collection(name=data_with_version, description='Collection for ' + data_with_version)
+            name_with_version = versioned_data(filename)
+            response = self.create_collection(name=name_with_version, description='Collection for ' + name_with_version)
             collection_id = response.uuid
-            return self.add_content(data=data, collection_id=collection_id)
+            return self.add_content(data=data, filename=filename, collection_id=collection_id)
 
         latest_collection = get_latest_collection(data_collections)
         latest_collection_id = latest_collection['uuid']
@@ -57,7 +59,7 @@ class VersionedUploads:
         if latest_cid != new_cid:
             response = self.create_collection(name=versioned_data(data), description='Collection for ' + data)
             collection_id = response.uuid
-            return self.add_content(data=data, collection_id=collection_id)
+            return self.add_content(data=data, filename=filename, collection_id=collection_id)
 
     def get_collections(self, name):
         return [
@@ -75,7 +77,9 @@ class VersionedUploads:
         response = response.replace("'", '"').replace("False", "false").replace("True", "true")
         return json.loads(response)
 
-    def add_content(self, data, collection_id=None):
+    def add_content(self, data, filename=None, collection_id=None):
+        if not filename:
+            filename = data
         if collection_id:
-            return self.content_api.content_add_post(data=data, filename=data, coluuid=collection_id)
-        return self.content_api.content_add_post(data=data, filename=data)
+            return self.content_api.content_add_post(data=data, filename=filename, coluuid=collection_id)
+        return self.content_api.content_add_post(data=data, filename=filename)
