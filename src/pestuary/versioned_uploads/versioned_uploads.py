@@ -39,27 +39,35 @@ class VersionedUploads:
     def add_with_version(self, data, filename=None):
         if not filename:
             filename = data
-        data_collections = self.get_collections(data)
+        data_collections = self.get_collections(filename)
 
         if not data_collections:
-            name_with_version = versioned_data(filename)
-            response = self.create_collection(name=name_with_version, description='Collection for ' + name_with_version)
-            collection_id = response.uuid
-            return self.add_content(data=data, filename=filename, collection_id=collection_id)
+            return self.upload_data_to_collection(data, filename)
 
+        latest_cid = self.get_latest_cid(data_collections)
+        new_cid = self.get_new_cid(data)
+
+        if latest_cid != new_cid:
+            return self.upload_data_to_collection(data, filename)
+
+    def get_new_cid(self, data):
+        new_data = self._add_content(data)
+        new_cid = new_data.cid
+        return new_cid
+
+    def get_latest_cid(self, data_collections):
         latest_collection = get_latest_collection(data_collections)
         latest_collection_id = latest_collection['uuid']
         latest_data = self.get_content(latest_collection_id)
         latest_data = pick_unique(latest_data)
         latest_cid = latest_data['cid']
+        return latest_cid
 
-        new_data = self.add_content(data)
-        new_cid = new_data.cid
-
-        if latest_cid != new_cid:
-            response = self.create_collection(name=versioned_data(data), description='Collection for ' + data)
-            collection_id = response.uuid
-            return self.add_content(data=data, filename=filename, collection_id=collection_id)
+    def upload_data_to_collection(self, data, filename):
+        name_with_version = versioned_data(filename)
+        response = self.create_collection(name=name_with_version, description='Collection for ' + name_with_version)
+        collection_id = response.uuid
+        return self._add_content(data=data, filename=filename, collection_id=collection_id)
 
     def get_collections(self, name):
         return [
@@ -77,7 +85,7 @@ class VersionedUploads:
         response = response.replace("'", '"').replace("False", "false").replace("True", "true")
         return json.loads(response)
 
-    def add_content(self, data, filename=None, collection_id=None):
+    def _add_content(self, data, filename=None, collection_id=None):
         if not filename:
             filename = data
         if collection_id:
