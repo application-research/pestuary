@@ -12,6 +12,6 @@ setup(
         entry_points='''
             [console_scripts]
             pestuary=pestuary_cli:main
-        '''
+        ''',
 )
         
