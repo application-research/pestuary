@@ -3,6 +3,7 @@ import sys
 import estuary_client
 from estuary_client.rest import ApiException
 from .versioned_uploads import versioned_uploads
+from .utils import utils
 
 # ESTUARY_URL='http://localhost:3004'
 ESTUARY_URL = 'https://api.estuary.tech'

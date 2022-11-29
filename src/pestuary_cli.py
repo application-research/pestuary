@@ -2,12 +2,10 @@ import json
 
 import instantcli
 
-import pestuary
-from pestuary import pinning
-from pestuary import content
-from pestuary import collections
 from pestuary import autoretrieve
-
+from pestuary import collections
+from pestuary import content
+from pestuary import pinning
 
 instantcli.filter_function_name = lambda name: not name.startswith("main") and not name.startswith("_")
 instantcli.post_call = lambda result: print(json.dumps(result, default=lambda x: x.to_dict()))
