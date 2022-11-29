@@ -13,5 +13,6 @@ setup(
             [console_scripts]
             pestuary=pestuary_cli:main
         ''',
+        long_description_content_type="text/markdown",
 )
         
