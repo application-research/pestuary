@@ -26,6 +26,6 @@ pestuary.collection_list_content(my_collection_uuid, "/subdir-on-collection")
 
 ## Pypi Release
 
-When we create a tag on git we automatically publish a new version to https://pypi.org/manage/project/pestuary/releases/
+When we create a tag on git we automatically publish a new version to https://pypi.org/project/pestuary/#history
 
 Make sure to increment the version in setup.py before creating the new tag
