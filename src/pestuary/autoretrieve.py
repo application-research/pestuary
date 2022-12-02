@@ -1,4 +1,7 @@
-from pestuary import autoretrieveApi
+from pestuary import Pestuary
+
+pestuary = Pestuary()
+autoretrieveApi = pestuary.get_autoretrieve_api()
 
 
 def autoretrieve_create(pub_key, addresses):

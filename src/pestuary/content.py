@@ -3,8 +3,11 @@ import tempfile
 
 from estuary_client import UtilContentAddIpfsBody
 
-from pestuary import contentApi
 from .collections import collection_create
+from pestuary import Pestuary
+
+pestuary = Pestuary()
+contentApi = pestuary.get_content_api()
 
 
 def add_string(buffer, filename, coluuid='', dir=''):
@@ -13,7 +16,7 @@ def add_string(buffer, filename, coluuid='', dir=''):
             fp.write(buffer)
             fp.flush()
             fp.seek(0)
-            return contentApi.content_add_post(fp.name, coluuid=coluuid, dir=dir)
+            return contentApi.content_add_post(fp.name, filename=fp.name, coluuid=coluuid, dir=dir)
 
 
 def _add_file(path, collection_uuid='', root_collection_path=''):

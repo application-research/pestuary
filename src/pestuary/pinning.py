@@ -1,4 +1,7 @@
-from pestuary import pinningApi
+from pestuary import Pestuary
+
+pestuary = Pestuary()
+pinningApi = pestuary.get_pinning_api()
 
 
 # creates a new pin
