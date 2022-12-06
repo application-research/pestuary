@@ -29,7 +29,8 @@ def _add_file(path, collection_uuid='', root_collection_path=''):
             return
         collection_path = '/' + os.path.relpath(path, start=root_collection_path)
     print("Calling api", path, collection_uuid)
-    return contentApi.content_add_post(path, coluuid=collection_uuid, dir=collection_path)
+    filename=os.path.basename(path)
+    return contentApi.content_add_post(path, filename=filename, coluuid=collection_uuid, dir=collection_path)
 
 
 def _add_dir(path, collection_uuid='', root_collection_path=''):
