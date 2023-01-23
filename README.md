@@ -12,9 +12,10 @@ $ pip install pestuary
 Initialize the SDK using your API Key
 
 ```python
-import pestuary
 
-pestuary.Pestuary(YOUR_ESTUARY_API_KEY)
+from pestuary import Pestuary
+
+pestuary = Pestuary(YOUR_ESTUARY_API_KEY)
 ```
 
 ## Usage
