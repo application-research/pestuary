@@ -14,11 +14,11 @@ def set_config(url, api_key):
 
 
 class Pestuary:
-    def __init__(self, estuary_url='https://api.estuary.tech', estuary_key=os.getenv('APIKEY')):
+    def __init__(self, estuary_key=os.getenv('APIKEY')):
         if not estuary_key:
             print("$APIKEY environment variable not set")
             sys.exit(1)
-        self.estuary_url = estuary_url
+        self.estuary_url ='https://api.estuary.tech'
         self.estuary_key = estuary_key
         self.configuration = set_config(estuary_url, estuary_key)
 
