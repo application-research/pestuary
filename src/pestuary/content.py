@@ -1,7 +1,7 @@
 import os
 import tempfile
 
-from estuary_client import UtilContentAddIpfsBody
+from estuary_client import TypesIpfsPin
 
 from .collections import collection_create
 from pestuary import Pestuary
@@ -71,5 +71,5 @@ def content_add(path, create_collection=False):
 
 
 def content_add_ipfs(ipfs):
-    body = UtilContentAddIpfsBody(root=ipfs)
+    body = TypesIpfsPin(cid=ipfs)
     return contentApi.content_add_ipfs_post(body)
