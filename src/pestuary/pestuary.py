@@ -32,8 +32,6 @@ class Pestuary:
         self._metricsApi = estuary_client.MetricsApi(estuary_client.ApiClient(self.configuration))
         self._minerApi = estuary_client.MinerApi(estuary_client.ApiClient(self.configuration))
         self._netApi = estuary_client.NetApi(estuary_client.ApiClient(self.configuration))
-        self._peeringApi = estuary_client.PeeringApi(estuary_client.ApiClient(self.configuration))
-        self._peersApi = estuary_client.PeersApi(estuary_client.ApiClient(self.configuration))
         self._pinningApi = estuary_client.PinningApi(estuary_client.ApiClient(self.configuration))
         self._publicApi = estuary_client.PublicApi(estuary_client.ApiClient(self.configuration))
 
