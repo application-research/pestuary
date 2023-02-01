@@ -7,6 +7,13 @@ Using pip
 $ pip install pestuary
 ```
 
+## Setup API Key
+
+Initialize the SDK using your API Key
+```
+export APIKEY = <YOUR_APIKEY>
+```
+
 ## Usage
 
 Add dir (recursively) to estuary and create a collection around it
