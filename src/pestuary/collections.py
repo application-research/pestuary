@@ -1,4 +1,4 @@
-from estuary_client import MainCreateCollectionBody
+from estuary_client import ApiCreateCollectionBody
 
 from pestuary import Pestuary
 
@@ -7,7 +7,7 @@ collectionsApi = pestuary.get_collections_api()
 
 
 def collection_create(name, description=''):
-    body = MainCreateCollectionBody(name=name, description=description)
+    body = ApiCreateCollectionBody(name=name, description=description)
     return collectionsApi.collections_post(body)
 
 
